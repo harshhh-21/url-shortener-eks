@@ -1,0 +1,27 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: ap-east-1
+    IMAGE_REPO_NAME: url-shortener
+
+phases:
+  pre_build:
+    commands:
+      - echo Installing Helm
+      - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - echo Updating kubeconfig
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name url-shortener-cluster
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REPO_URI=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
+  build:
+    commands:
+      - echo Deploying with Helm
+
+      - helm upgrade --install url-shortener ./url-shortener-chart \
+        --set image.repository=$REPO_URI \
+        --set image.tag=$IMAGE_TAG
+
+      - kubectl rollout status deployment url-shortener

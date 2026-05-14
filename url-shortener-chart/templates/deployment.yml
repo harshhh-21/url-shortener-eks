@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ .Release.Name}}
+spec:
+    replicas: {{ .Values.replicaCount}}
+    selector:
+      matchLabels:
+        app: url-shortener
+    template:
+      metadata:
+        labels:
+          app: url-shortener
+      spec:
+        containers:
+        - name: url-shortener
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+          - containerPort: 5000
