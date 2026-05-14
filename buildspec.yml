@@ -25,7 +25,7 @@ phases:
       - echo Pushing to ECR
       - docker push $REPO_URI:$IMAGE_TAG
       - echo Deploying to EKS
-      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name url-shortener-cluster
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name url-shortener
       - kubectl apply -f k8s/
 
 artifacts:
